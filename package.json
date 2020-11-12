@@ -1,0 +1,14 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
+  },
+  "scripts": {
+    "build": "nodemon tsc",
+    "dev": "nodemon --watch 'src/' --exec 'tsc' -e ts"
+  }
+}

@@ -2,18 +2,22 @@ var vertexShaderText = [
     'precision mediump float;',
     '',
     'attribute vec2 vertPosition;',
+    'attribute vec3 vertColor;',
+    'varying vec3 fragColor;',
     '',
     'void main()',
     '{',
+    '   fragColor = vertColor;',
     '   gl_Position = vec4(vertPosition, 0.0, 1.0);',
     '}'
 ].join('\n');
 var fragmentShaderText = [
     'precision mediump float;',
     '',
+    'varying vec3 fragColor;',
     'void main()',
     '{',
-    'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);',
+    'gl_FragColor = vec4(fragColor, 1.0);',
     '}'
 ].join('\n');
 var InitDemo = function () {
@@ -58,28 +62,36 @@ var InitDemo = function () {
     // Create Buffer
     //
     var triangleVertices = [
-        // X, Y 
-        0.0, 0.5,
-        -0.5, -0.5,
-        0.5, -0.5,
+        // X,   Y,      R,   G,   B 
+        0.0, 0.5, 1.0, 1.0, 0.0,
+        -0.5, -0.5, 1.0, 0.0, 1.0,
+        0.5, -0.5, 0.1, 1.0, 0.6
     ];
     var triangleVertexBufferObject = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
     var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
+    var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
     gl.vertexAttribPointer(positionAttribLocation, // att location
     2, // number of elements per attribute
     gl.FLOAT, //type of elements
     false, // normalized
-    2 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
+    5 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
     0 // offset
     );
+    gl.vertexAttribPointer(colorAttribLocation, // att location
+    3, // number of elements per attribute
+    gl.FLOAT, //type of elements
+    false, // normalized
+    5 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
+    2 * Float32Array.BYTES_PER_ELEMENT // offset
+    );
     gl.enableVertexAttribArray(positionAttribLocation);
+    gl.enableVertexAttribArray(colorAttribLocation);
     //
     // Main render loop
     //
     gl.useProgram(program);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    console.log(gl.getProgramInfoLog(program));
 };
 //# sourceMappingURL=hello-triangle.js.map

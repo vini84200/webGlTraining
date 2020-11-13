@@ -69,7 +69,7 @@ export const InitDemo = function () {
         // X,   Y,   Z,         R,   G,   B 
         0.0, 0.5, 0.0, 1.0, 1.0, 0.0,
         -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
-        0.5, -0.5, 0.0, 0.1, 1.0, 0.6
+        0.5, -0.5, 0.0, 0.1, 1.0, 0.6,
     ];
     var triangleVertexBufferObject = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
@@ -108,7 +108,19 @@ export const InitDemo = function () {
     //
     // Main render loop
     //
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    var identityMatrix = new Float32Array(16);
+    mat4.identity(identityMatrix);
+    var angle = 0;
+    var loop = function () {
+        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
+        mat4.rotate(worldMatrix, identityMatrix, angle, [0, 1, 0]);
+        gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
+        gl.clearColor(0.75, 0.85, 0.8, 1.0);
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
 };
 InitDemo();
 //# sourceMappingURL=rotating-cube.js.map

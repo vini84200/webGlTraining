@@ -1,13 +1,17 @@
+import { mat4 } from "../modules/gl-matrix/index.js";
 var vertexShaderText = `precision mediump float;
     
-    attribute vec2 vertPosition;
+    attribute vec3 vertPosition;
     attribute vec3 vertColor;
     varying vec3 fragColor;
+    uniform mat4 mWorld;
+    uniform mat4 mView;
+    uniform mat4 mProj;
     
     void main()
     {
        fragColor = vertColor;
-       gl_Position = vec4(vertPosition, 0.0, 1.0);
+       gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
     }
 `;
 var fragmentShaderText = `precision mediump float;
@@ -19,6 +23,7 @@ var fragmentShaderText = `precision mediump float;
     }
 `;
 export const InitDemo = function () {
+    console.log("Initianting rendering");
     var canvas = document.getElementById('game-surface');
     var gl = canvas.getContext('webgl');
     if (!gl) {
@@ -60,10 +65,10 @@ export const InitDemo = function () {
     // Create Buffer
     //
     var triangleVertices = [
-        // X,   Y,      R,   G,   B 
-        0.0, 0.5, 1.0, 1.0, 0.0,
-        -0.5, -0.5, 1.0, 0.0, 1.0,
-        0.5, -0.5, 0.1, 1.0, 0.6
+        // X,   Y,   Z,         R,   G,   B 
+        0.0, 0.5, 0.0, 1.0, 1.0, 0.0,
+        -0.5, -0.5, 0.0, 1.0, 0.0, 1.0,
+        0.5, -0.5, 0.0, 0.1, 1.0, 0.6
     ];
     var triangleVertexBufferObject = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
@@ -71,25 +76,37 @@ export const InitDemo = function () {
     var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
     var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
     gl.vertexAttribPointer(positionAttribLocation, // att location
-    2, // number of elements per attribute
+    3, // number of elements per attribute
     gl.FLOAT, //type of elements
     false, // normalized
-    5 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
+    6 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
     0 // offset
     );
     gl.vertexAttribPointer(colorAttribLocation, // att location
     3, // number of elements per attribute
     gl.FLOAT, //type of elements
     false, // normalized
-    5 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
-    2 * Float32Array.BYTES_PER_ELEMENT // offset
+    6 * Float32Array.BYTES_PER_ELEMENT, // size of an individual vertex
+    3 * Float32Array.BYTES_PER_ELEMENT // offset
     );
     gl.enableVertexAttribArray(positionAttribLocation);
     gl.enableVertexAttribArray(colorAttribLocation);
+    gl.useProgram(program);
+    var matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
+    var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
+    var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
+    var worldMatrix = new Float32Array(16);
+    var viewMatrix = new Float32Array(16);
+    var projMatrix = new Float32Array(16);
+    mat4.identity(worldMatrix);
+    mat4.identity(viewMatrix);
+    mat4.identity(projMatrix);
+    gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
+    gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
     //
     // Main render loop
     //
-    gl.useProgram(program);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 };
 InitDemo();

@@ -1,3 +1,4 @@
+import { toRadian } from "../modules/gl-matrix/common.js";
 import { mat4 } from "../modules/gl-matrix/index.js";
 var vertexShaderText = `precision mediump float;
     
@@ -99,8 +100,8 @@ export const InitDemo = function () {
     var viewMatrix = new Float32Array(16);
     var projMatrix = new Float32Array(16);
     mat4.identity(worldMatrix);
-    mat4.identity(viewMatrix);
-    mat4.identity(projMatrix);
+    mat4.lookAt(viewMatrix, [0, 0, -2], [0, 0, 0], [0, 1, 0]);
+    mat4.perspective(projMatrix, toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
     gl.uniformMatrix4fv(matWorldUniformLocation, false, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, false, viewMatrix);
     gl.uniformMatrix4fv(matProjUniformLocation, false, projMatrix);
